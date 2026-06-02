@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Bed Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <h1 class="logo">🏥 Hospital Bed Management</h1>
+        <div class="nav-icons">
+          <span id="lastUpdate" class="last-update">Last updated: --:--</span>
+          <button id="refreshBtn" class="btn btn-refresh">🔄 Refresh</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Analytics Cards -->
+      <div class="analytics-section">
+        <div class="stat-card total">
+          <div class="stat-number" id="totalBeds">0</div>
+          <div class="stat-label">Total Beds</div>
+        </div>
+        <div class="stat-card available">
+          <div class="stat-number" id="availableBeds">0</div>
+          <div class="stat-label">Available</div>
+        </div>
+        <div class="stat-card occupied">
+          <div class="stat-number" id="occupiedBeds">0</div>
+          <div class="stat-label">Occupied</div>
+        </div>
+        <div class="stat-card maintenance">
+          <div class="stat-number" id="maintenanceBeds">0</div>
+          <div class="stat-label">Maintenance</div>
+        </div>
+        <div class="stat-card occupancy">
+          <div class="stat-number" id="occupancyRate">0%</div>
+          <div class="stat-label">Occupancy Rate</div>
+        </div>
+      </div>
+
+      <div class="content-wrapper">
+        <!-- Filters Section -->
+        <div class="filters-section">
+          <h3>Filters</h3>
+          <div class="filter-group">
+            <label for="wardFilter">Ward</label>
+            <select id="wardFilter">
+              <option value="all">All Wards</option>
+              <option value="ICU">ICU</option>
+              <option value="General">General</option>
+              <option value="Pediatric">Pediatric</option>
+              <option value="Orthopedic">Orthopedic</option>
+              <option value="Cardiology">Cardiology</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter">
+              <option value="all">All Status</option>
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="maintenance">Maintenance</option>
+            </select>
+          </div>
+
+          <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
+        </div>
+
+        <!-- Beds Grid Section -->
+        <div class="beds-section">
+          <h3>Hospital Beds</h3>
+          <div class="beds-grid" id="bedsGrid">
+            <div class="loading">Loading beds...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bed Details Sidebar -->
+      <div class="details-sidebar" id="detailsSidebar">
+        <div class="sidebar-header">
+          <h3>Bed Details</h3>
+          <button id="closeSidebar" class="close-btn">&times;</button>
+        </div>
+        <div id="bedDetailsContent" class="sidebar-content">
+          <p class="placeholder">Select a bed to view details</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admit Patient Modal -->
+  <div id="admitModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Admit Patient to Bed <span id="modalBedNumber"></span></h2>
+        <button class="close-btn" onclick="closeAdmitModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="admitForm">
+          <div class="form-group">
+            <label for="patientName">Patient Name *</label>
+            <input type="text" id="patientName" required placeholder="Enter patient name">
+          </div>
+
+          <div class="form-group">
+            <label for="patientId">Patient ID *</label>
+            <input type="text" id="patientId" required placeholder="Enter patient ID">
+          </div>
+
+          <div class="form-group">
+            <label for="doctorName">Assigned Doctor *</label>
+            <input type="text" id="doctorName" required placeholder="Enter doctor name">
+          </div>
+
+          <div class="form-group">
+            <label for="admissionReason">Reason for Admission</label>
+            <textarea id="admissionReason" placeholder="Enter reason for admission"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Admit Patient</button>
+            <button type="button" class="btn btn-secondary" onclick="closeAdmitModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transfer Patient Modal -->
+  <div id="transferModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Transfer Patient from Bed <span id="transferBedNumber"></span></h2>
+        <button class="close-btn" onclick="closeTransferModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="transferForm">
+          <div class="form-group">
+            <label for="targetBed">Transfer to Bed *</label>
+            <select id="targetBed" required>
+              <option value="">Select destination bed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="transferReason">Reason for Transfer</label>
+            <textarea id="transferReason" placeholder="Enter reason for transfer"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Transfer Patient</button>
+            <button type="button" class="btn btn-secondary" onclick="closeTransferModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
