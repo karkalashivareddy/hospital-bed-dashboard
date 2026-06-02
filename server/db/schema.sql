@@ -41,7 +41,7 @@ INSERT INTO beds (id, bedNumber, ward, status) VALUES
 ('bed_1', 'B101', 'ICU', 'available'),
 ('bed_2', 'B102', 'ICU', 'available'),
 ('bed_3', 'B103', 'ICU', 'maintenance'),
-('bed_4', 'B201', 'General', 'available'),
+('bed_4', 'B201', 'a', 'available'),
 ('bed_5', 'B202', 'General', 'available'),
 ('bed_6', 'B203', 'General', 'available'),
 ('bed_7', 'B301', 'Pediatric', 'available'),
@@ -50,3 +50,5 @@ INSERT INTO beds (id, bedNumber, ward, status) VALUES
 ('bed_10', 'B402', 'Orthopedic', 'available'),
 ('bed_11', 'B501', 'Cardiology', 'available'),
 ('bed_12', 'B502', 'Cardiology', 'available');
+CREATE DATABASE hospital_beds;
+USE hospital_beds;
