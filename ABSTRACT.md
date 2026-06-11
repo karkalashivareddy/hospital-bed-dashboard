@@ -1,5 +1,9 @@
-ABSTRACT
-The Hospital Bed Management Dashboard is a web-based application designed to efficiently manage hospital bed availability in real time. In many hospitals, tracking bed occupancy across different wards such as ICU, General, and Emergency is often done manually, leading to delays, miscommunication, and inefficient patient handling.
-This project provides a centralized dashboard that displays real-time bed status, including available, occupied, and under maintenance beds. It allows hospital staff to perform key operations such as patient admission, discharge, and transfer between wards. The system also includes features like capacity alerts when bed availability falls below a threshold, maintenance status updates, and historical data tracking for analysis.
-The application is built using modern web technologies such as React.js for the frontend and Node.js with Express.js for the backend. REST APIs are used for communication, and data can be stored using MySQL or browser local storage.
-This system improves operational efficiency, reduces manual errors, and enhances decision-making in hospital management. It also provides a scalable solution that can be extended with real-time updates and analytics in the future.
+# Abstract
+
+The Hospital Bed Management System is a web-based application developed to improve the efficiency of managing hospital bed availability and occupancy. In many healthcare facilities, tracking bed status manually can be time-consuming and prone to errors, leading to delays in patient allocation and resource management. This system provides a digital solution for monitoring and updating bed information in real time.
+
+The application enables hospital staff to view bed availability, manage occupancy status, and maintain accurate records through an easy-to-use interface. By integrating a MySQL database with a Node.js and Express.js backend, the system ensures reliable data storage and efficient communication between the user interface and the database. The frontend is built using HTML, CSS, and JavaScript to provide a responsive and user-friendly experience.
+
+The primary objective of this project is to simplify hospital bed management, reduce administrative workload, and improve resource utilization. The system offers RESTful API support for handling bed-related operations such as retrieving, adding, updating, and deleting bed records. This helps maintain up-to-date information and supports better decision-making within healthcare facilities.
+
+Developed as a college academic project, the Hospital Bed Management System demonstrates the practical application of full-stack web development technologies in solving real-world healthcare management challenges. The project highlights the importance of digital transformation in healthcare administration by providing a scalable and efficient platform for managing hospital bed resources.
