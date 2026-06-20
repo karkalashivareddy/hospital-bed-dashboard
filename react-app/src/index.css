@@ -1,0 +1,20 @@
+:root{
+  --bg:#f7f9fb; --card:#fff; --accent:#2b6cb0; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+body,html,#root{height:100%; margin:0;}
+.app{min-height:100%; background:var(--bg); color:#111;}
+.app-header{background:linear-gradient(90deg,var(--accent),#4c9bd9); color:#fff; padding:1rem 1.5rem;}
+.container{padding:1.5rem; max-width:1200px; margin:0 auto;}
+.dashboard .filters{display:flex; gap:0.5rem; margin-bottom:1rem;}
+.filters input{flex:1; padding:0.5rem; border-radius:6px; border:1px solid #ddd;}
+.filters select{padding:0.5rem; border-radius:6px; border:1px solid #ddd;}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem;}
+.bed-card{background:var(--card); border-radius:8px; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.06);} 
+.bed-header{display:flex; justify-content:space-between; align-items:center;}
+.bed-type{font-size:0.85rem; color:#666;}
+.status-available{border-left:4px solid var(--ok);}
+.status-occupied{border-left:4px solid var(--bad);}
+.status-cleaning{border-left:4px solid var(--warn);}
+.bed-meta{display:flex; gap:1rem; margin-top:0.5rem; color:#666; font-size:0.85rem;}
+.patient{margin-top:0.5rem; font-weight:600;}
