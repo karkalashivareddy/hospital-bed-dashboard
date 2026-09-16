@@ -1,201 +1,127 @@
-# Hospital Bed Management System
+# Hospital Bed Dashboard
 
-## Overview
+Hospital Bed Dashboard is a small full-stack bed-occupancy application. Its primary implementation is a browser dashboard under `public/` backed by an Express/MySQL API under `server/`. A separate `react-app/` directory contains a Vite/React dashboard prototype that currently reads local/mock data rather than the MySQL API.
 
-The Hospital Bed Management System is a web-based application developed to streamline the management of hospital bed availability and occupancy. The system enables hospital staff to monitor bed status, update availability, and maintain accurate occupancy records through an intuitive interface.
+## What the main application supports
 
-This project was developed as a college academic project to demonstrate the practical implementation of web technologies and database management in healthcare administration.
+- View beds ordered by ward and bed number.
+- Filter the dashboard by ward and status.
+- Inspect patient and doctor details for occupied beds.
+- Admit a patient to an available bed.
+- Discharge an occupied bed.
+- Transfer a patient to another available bed in a transaction.
+- Persist bed, patient, and doctor records in MySQL.
 
----
+## Architecture
 
-## Features
-
-### Bed Management
-
-* View all hospital beds and their current status
-* Track available and occupied beds
-* Update bed information dynamically
-
-### Occupancy Management
-
-* Allocate beds based on availability
-* Release beds when they become vacant
-* Maintain real-time occupancy records
-
-### User Interface
-
-* Simple and responsive design
-* Easy navigation and accessibility
-* Real-time data updates using API integration
-
-### Backend Services
-
-* RESTful API architecture
-* MySQL database integration
-* Environment-based configuration using `.env`
-
----
-
-## Technology Stack
-
-| Category | Technology            |
-| -------- | --------------------- |
-| Frontend | HTML, CSS, JavaScript |
-| Backend  | Node.js, Express.js   |
-| Database | MySQL                 |
-| Styling  | Custom CSS            |
-
----
-
-## Project Structure
-
-```text
-hospital-bed-management-system/
-│
-├── public/
-│   ├── css/
-│   │   └── style.css
-│   │
-│   ├── js/
-│   │   ├── api.js
-│   │   ├── main.js
-│   │   └── ui.js
-│   │
-│   └── index.html
-│
-├── server/
-│   ├── db/
-│   │   ├── connection.js
-│   │   └── schema.sql
-│   │
-│   └── routes/
-│       └── beds.js
-│
-├── .env
-├── package.json
-├── package-lock.json
-├── server.js
-├── .gitignore
-├── ABSTRACT.md
-└── README.md
+```mermaid
+flowchart LR
+    B[Browser: public/index.html + public/js] -->|HTTP /api| E[Express server]
+    E --> R[bedRoutes.js]
+    R --> DB[(MySQL hospital_beds)]
+    DB --> R
+    P[react-app prototype] --> L[local /beds.json or mock fallback]
 ```
 
----
+The static dashboard is the implementation wired to the backend. The React prototype is useful for UI exploration but is not an API client for the Express server yet.
 
-## Installation and Setup
+## Stack
 
-### Prerequisites
+| Layer | Technologies |
+| --- | --- |
+| Frontend | HTML, CSS, browser JavaScript; optional React 18/Vite prototype |
+| Backend | Node.js, Express 4, CORS, dotenv |
+| Database | MySQL via `mysql2/promise` |
+| Development | npm, nodemon |
 
-* Node.js (v14 or later)
-* MySQL Server
-* npm (Node Package Manager)
+## Run the main application
 
-### Steps to Run the Project
+Prerequisites: Node.js 18+, npm, and a running MySQL server.
 
-#### 1. Clone the Repository
+1. Create the database schema from the repository root:
 
-```bash
-git clone https://github.com/your-username/hospital-bed-management-system.git
+   ```bash
+   mysql -u <mysql-user> -p < server/db/schema.sql
+   ```
+
+2. Configure the backend:
+
+   ```bash
+   cd server
+   npm install
+   Copy-Item .env.example .env       # PowerShell
+   # or: cp .env.example .env
+   npm start
+   ```
+
+3. In another terminal, serve the static frontend from the repository root:
+
+   ```bash
+   python -m http.server 5500 --directory public
+   ```
+
+4. Open `http://localhost:5500`. The browser JavaScript calls the API at `http://localhost:5000/api`.
+
+The server defaults to port `5000`. Environment variables are documented in [`server/.env.example`](server/.env.example). Never commit `server/.env` or real database credentials.
+
+## API
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/health` | Confirm the Express server is running |
+| `GET` | `/api/beds` | List beds with patient and doctor information |
+| `GET` | `/api/beds/:bedId` | Read one bed |
+| `POST` | `/api/beds/:bedId/admit` | Admit a patient to an available bed |
+| `POST` | `/api/beds/:bedId/discharge` | Release an occupied bed |
+| `POST` | `/api/beds/:bedId/transfer` | Transfer a patient using a MySQL transaction |
+
+Example admit body:
+
+```json
+{
+  "patientName": "Example Patient",
+  "patientId": "patient-001",
+  "doctor": "Example Doctor",
+  "admissionReason": "Observation"
+}
 ```
 
-#### 2. Navigate to the Project Directory
+## React prototype
 
 ```bash
-cd hospital-bed-management-system
-```
-
-#### 3. Install Dependencies
-
-```bash
+cd react-app
 npm install
+npm run dev
 ```
 
-#### 4. Configure Environment Variables
+The prototype searches by bed ID, ward, or patient, filters by status, and renders loading/empty states. Its `src/services/api.js` attempts `/beds.json` and falls back to a small in-memory fixture; connect it to the Express routes before treating it as the production UI.
 
-Create a `.env` file in the root directory and add the following:
-
-```env
-DB_HOST=localhost
-DB_USER=your_mysql_username
-DB_PASSWORD=your_mysql_password
-DB_NAME=hospital_beds
-PORT=3000
-```
-
-#### 5. Set Up the Database
-
-Import the SQL schema located in:
+## Project structure
 
 ```text
-server/db/schema.sql
+public/                 primary static dashboard and API client
+server/
+  server.js             Express bootstrap and health route
+  routes/bedRoutes.js   bed, admission, discharge, and transfer routes
+  db/schema.sql         MySQL schema and seed rows
+  db/connection.js      MySQL connection pool
+react-app/              separate React/Vite prototype
+documents/              project abstract
 ```
 
-Example:
+## Verification
 
 ```bash
-mysql -u your_mysql_username -p hospital_beds < server/db/schema.sql
+cd server
+node --check server.js
+node --check routes/bedRoutes.js
+
+cd ../react-app
+npm run build
 ```
 
-#### 6. Start the Application
+Database-backed flows require a running MySQL instance, so they are not claimed as verified by a static syntax check alone.
 
-```bash
-npm start
-```
+## Author
 
-#### 7. Open in Browser
-
-```text
-http://localhost:3000
-```
-
----
-
-## API Endpoints
-
-| Method | Endpoint        | Description              |
-| ------ | --------------- | ------------------------ |
-| GET    | `/api/beds`     | Retrieve all bed records |
-| POST   | `/api/beds`     | Add a new bed            |
-| PUT    | `/api/beds/:id` | Update bed information   |
-| DELETE | `/api/beds/:id` | Delete a bed record      |
-
----
-
-## Available Scripts
-
-| Command       | Description                              |
-| ------------- | ---------------------------------------- |
-| `npm start`   | Start the application                    |
-| `npm run dev` | Start development server (if configured) |
-
----
-
-## Future Enhancements
-
-* Patient registration and management
-* Ward and ICU categorization
-* Authentication and authorization
-* Real-time notifications
-* Dashboard analytics and reporting
-* Hospital staff management
-
----
-
-## Team Members
-
-This project was developed as a team project for academic purposes.
-
-* Shiva
-* Navadeep
-
----
-
-## Acknowledgements
-
-We express our sincere gratitude to our faculty members and institution for their guidance and support during the development of this project.
-
----
-
-## License
-
-This project is intended for educational and academic purposes only.
+**Karkala Shiva Reddy** — [GitHub](https://github.com/karkalashivareddy)
