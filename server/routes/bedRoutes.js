@@ -14,6 +14,8 @@ router.get('/', async (req, res) => {
         b.patientId,
         b.doctorId,
         b.admittedDate,
+        b.admissionReason,
+        b.transferReason,
         p.name as patientName,
         d.name as doctor
       FROM beds b
@@ -42,6 +44,8 @@ router.get('/:bedId', async (req, res) => {
         b.patientId,
         b.doctorId,
         b.admittedDate,
+        b.admissionReason,
+        b.transferReason,
         p.name as patientName,
         d.name as doctor
       FROM beds b
@@ -110,8 +114,8 @@ router.post('/:bedId/admit', async (req, res) => {
     }
 
     await db.query(
-      'UPDATE beds SET status = ?, patientId = ?, doctorId = ?, admittedDate = NOW() WHERE id = ?',
-      ['occupied', patientId, doctorId, req.params.bedId]
+      'UPDATE beds SET status = ?, patientId = ?, doctorId = ?, admittedDate = NOW(), admissionReason = ? WHERE id = ?',
+      ['occupied', patientId, doctorId, admissionReason || null, req.params.bedId]
     );
 
     res.json({ success: true, message: 'Patient admitted successfully' });
@@ -133,7 +137,7 @@ router.post('/:bedId/discharge', async (req, res) => {
     }
 
     await db.query(
-      'UPDATE beds SET status = ?, patientId = NULL, doctorId = NULL, admittedDate = NULL WHERE id = ?',
+      'UPDATE beds SET status = ?, patientId = NULL, doctorId = NULL, admittedDate = NULL, admissionReason = NULL, transferReason = NULL WHERE id = ?',
       ['available', req.params.bedId]
     );
 
@@ -182,13 +186,13 @@ router.post('/:bedId/transfer', async (req, res) => {
       }
 
       await connection.query(
-        'UPDATE beds SET status = ?, patientId = NULL, doctorId = NULL WHERE id = ?',
+        'UPDATE beds SET status = ?, patientId = NULL, doctorId = NULL, admissionReason = NULL, transferReason = NULL WHERE id = ?',
         ['available', req.params.bedId]
       );
 
       await connection.query(
-        'UPDATE beds SET status = ?, patientId = ?, doctorId = ?, admittedDate = NOW() WHERE id = ?',
-        ['occupied', sourceBed[0].patientId, sourceBed[0].doctorId, toBedId]
+        'UPDATE beds SET status = ?, patientId = ?, doctorId = ?, admittedDate = NOW(), admissionReason = NULL, transferReason = ? WHERE id = ?',
+        ['occupied', sourceBed[0].patientId, sourceBed[0].doctorId, transferReason || null, toBedId]
       );
 
       await connection.commit();

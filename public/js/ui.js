@@ -5,6 +5,16 @@ let currentFilters = {
   status: 'all',
 };
 
+// Escape untrusted text before HTML interpolation
+function esc(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // DOM Elements
 const bedsGrid = document.getElementById('bedsGrid');
 const wardFilter = document.getElementById('wardFilter');
@@ -36,11 +46,11 @@ function renderBeds(beds) {
   }
 
   bedsGrid.innerHTML = beds.map(bed => `
-    <div class="bed-card ${bed.status}" data-bed-id="${bed.id}">
-      <div class="bed-number">${bed.bedNumber}</div>
-      <div class="bed-ward">${bed.ward}</div>
-      <span class="bed-status ${bed.status}">${bed.status}</span>
-      ${bed.patientName ? `<div class="bed-patient">👤 ${bed.patientName}</div>` : ''}
+    <div class="bed-card ${esc(bed.status)}" data-bed-id="${esc(bed.id)}">
+      <div class="bed-number">${esc(bed.bedNumber)}</div>
+      <div class="bed-ward">${esc(bed.ward)}</div>
+      <span class="bed-status ${esc(bed.status)}">${esc(bed.status)}</span>
+      ${bed.patientName ? `<div class="bed-patient">👤 ${esc(bed.patientName)}</div>` : ''}
     </div>
   `).join('');
 
@@ -60,15 +70,15 @@ async function showBedDetails(bedId) {
   let html = `
     <div class="detail-item">
       <div class="detail-label">Bed Number</div>
-      <div class="detail-value">${bed.bedNumber}</div>
+      <div class="detail-value">${esc(bed.bedNumber)}</div>
     </div>
     <div class="detail-item">
       <div class="detail-label">Ward</div>
-      <div class="detail-value">${bed.ward}</div>
+      <div class="detail-value">${esc(bed.ward)}</div>
     </div>
     <div class="detail-item">
       <div class="detail-label">Status</div>
-      <div class="detail-value"><span class="bed-status ${bed.status}">${bed.status}</span></div>
+      <div class="detail-value"><span class="bed-status ${esc(bed.status)}">${esc(bed.status)}</span></div>
     </div>
   `;
 
@@ -76,31 +86,47 @@ async function showBedDetails(bedId) {
     html += `
       <div class="detail-item">
         <div class="detail-label">Patient Name</div>
-        <div class="detail-value">${bed.patientName || 'N/A'}</div>
+        <div class="detail-value">${esc(bed.patientName || 'N/A')}</div>
       </div>
       <div class="detail-item">
         <div class="detail-label">Patient ID</div>
-        <div class="detail-value">${bed.patientId || 'N/A'}</div>
+        <div class="detail-value">${esc(bed.patientId || 'N/A')}</div>
       </div>
       <div class="detail-item">
         <div class="detail-label">Assigned Doctor</div>
-        <div class="detail-value">${bed.doctor || 'N/A'}</div>
+        <div class="detail-value">${esc(bed.doctor || 'N/A')}</div>
       </div>
       <div class="detail-item">
         <div class="detail-label">Admitted Date</div>
         <div class="detail-value">${bed.admittedDate ? new Date(bed.admittedDate).toLocaleDateString() : 'N/A'}</div>
       </div>
     `;
+    if (bed.admissionReason) {
+      html += `
+      <div class="detail-item">
+        <div class="detail-label">Admission Reason</div>
+        <div class="detail-value">${esc(bed.admissionReason)}</div>
+      </div>
+    `;
+    }
+    if (bed.transferReason) {
+      html += `
+      <div class="detail-item">
+        <div class="detail-label">Transfer Reason</div>
+        <div class="detail-value">${esc(bed.transferReason)}</div>
+      </div>
+    `;
+    }
   }
 
   html += '<div class="sidebar-actions">';
 
   if (bed.status === 'available') {
-    html += `<button class="btn btn-success" onclick="openAdmitModal('${bed.id}', '${bed.bedNumber}')">➕ Admit Patient</button>`;
+    html += `<button class="btn btn-success" data-action="admit">➕ Admit Patient</button>`;
   } else if (bed.status === 'occupied') {
     html += `
-      <button class="btn btn-danger" onclick="handleDischarge('${bed.id}')">➖ Discharge Patient</button>
-      <button class="btn btn-primary" onclick="openTransferModal('${bed.id}', '${bed.bedNumber}')">🔄 Transfer Patient</button>
+      <button class="btn btn-danger" data-action="discharge">➖ Discharge Patient</button>
+      <button class="btn btn-primary" data-action="transfer">🔄 Transfer Patient</button>
     `;
   }
 
@@ -108,7 +134,23 @@ async function showBedDetails(bedId) {
 
   detailsContent.innerHTML = html;
   detailsSidebar.classList.add('active');
+  activeBedId = bed.id;
 }
+
+// Track the currently displayed bed for sidebar actions
+let activeBedId = null;
+
+// Delegate sidebar action buttons (no inline handlers with raw values)
+detailsContent.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const bed = allBeds.find(b => b.id === activeBedId);
+  if (!bed) return;
+  const action = btn.dataset.action;
+  if (action === 'admit') openAdmitModal(bed.id, bed.bedNumber);
+  else if (action === 'discharge') handleDischarge(bed.id);
+  else if (action === 'transfer') openTransferModal(bed.id, bed.bedNumber);
+});
 
 // Close sidebar
 function closeSidebar() {
@@ -138,7 +180,7 @@ function openTransferModal(bedId, bedNumber) {
   const targetBedSelect = document.getElementById('targetBed');
   
   targetBedSelect.innerHTML = '<option value="">Select destination bed</option>' +
-    availableBeds.map(b => `<option value="${b.id}">${b.bedNumber} (${b.ward})</option>`).join('');
+    availableBeds.map(b => `<option value="${esc(b.id)}">${esc(b.bedNumber)} (${esc(b.ward)})</option>`).join('');
   
   transferForm.reset();
   transferModal.classList.add('active');
