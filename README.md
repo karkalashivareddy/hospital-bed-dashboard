@@ -122,6 +122,14 @@ npm run build
 
 Database-backed flows require a running MySQL instance, so they are not claimed as verified by a static syntax check alone.
 
+## Screenshots
+
+| View | Screenshot |
+| --- | --- |
+| React Prototype Dashboard (static build — MySQL backend not running locally) | ![Dashboard](docs/assets/screenshots/01-dashboard.png) |
+
+*Screenshot captured from live React prototype build (served statically on :8094) on 2026-09-17. The Express/MySQL backend requires a MySQL instance which was not available in the verification environment — API calls show error states as captured.*
+
 ## Author
 
 **Karkala Shiva Reddy** — [GitHub](https://github.com/karkalashivareddy)
